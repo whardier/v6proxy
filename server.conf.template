@@ -8,7 +8,7 @@ mandrill_api_key="xxxxxxxxxxxxxxxxxxxxxx"
                 
 cloudflare_api_key="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                                       
-registration_secret='xxxxxxxxxxxxxxxx'
+encryption_secret='xxxxxxxxxxxxxxxx'
 
 #Generate something else!
 cookie_secret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"

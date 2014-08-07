@@ -21,7 +21,7 @@
         <!-- Bootstrap core CSS -->
         <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
         <link href="//cdnjs.cloudflare.com/ajax/libs/bootswatch/3.2.0+1/united/bootstrap.min.css" rel="stylesheet"/>
-        
+
         <!-- FontAwesome Icons -->
         <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
         
@@ -53,7 +53,9 @@
         <div class="modal fade" id="registration-modal" tabindex="-1" role="dialog" aria-labelledby="registration-modal-label" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                        <form class="form-horizontal" role="form">
+                        <form class="form-horizontal" id='registration-modal-form' role="form" method="POST" action="{{ reverse_url('subdomain/registration') }}">
+                            {% raw xsrf_form_html() %}
+
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">
                                     <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
@@ -67,24 +69,29 @@
     
                                     <div class="form-group">
                                         <label for="email">Email address</label>
-                                        <input type="email" class="form-control" id="email" placeholder="username@domain.com">
+                                        <input type="email" class="form-control" name="email" id="email" placeholder="username@domain.com">
                                         <p class="help-block">Used for quick verification and abuse management.</p>
                                     </div>
                                     <div class="form-group">
+                                        <label for="address">IPv6 Address</label>
+                                        <input type="text" class="form-control" name="address" id="address" placeholder="address">
+                                        <p class="help-block">Address should be publically accessible and be listening on standard HTTP and/or HTTPS ports.</p>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="subdomain">Subdomain</label>
-                                        <input type="text" class="form-control" id="subdomain" placeholder="subdomain">
+                                        <input type="text" class="form-control" name="subdomain" id="subdomain" placeholder="subdomain">
                                         <p class="help-block">You will be emailed further information about the subdomain you register which includes an unproxied DNS alias (direct).  You may use as many '.' as CloudFlare allows.</p>
                                     </div>
                                     <div class="form-group">
                                         <label for="domain">Domain</label>
-                                        <select class="form-control" id="domain">
+                                        <select class="form-control" name="domain" id="domain">
                                             <option selected>v6proxy.com</option>
                                             <option>proxyipv6.com</option>
                                         </select>
                                     </div>
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" name="wildcard"/> Set up unproxied *.(subdomain).wildcard.(domain.com) DNS pointer
+                                            <input type="checkbox" id="wildcard" name="wildcard"/> Set up unproxied *.(subdomain).wildcard.(domain.com) DNS pointer
                                         </label>
                                     </div>
                                 </div>
@@ -93,7 +100,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</a>
-                            <button type="button" id="registration-modal-button-accept" class="btn btn-default" data-dismiss="modal">Register</button>
+                            <button type="submit" id="registration-modal-form-button-accept" class="btn btn-default">Register</button>
                         </div>
                     </form>
                 </div>
@@ -245,21 +252,25 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
     
     <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    
-    <script>
-                
-        if (!$.cookie('donation')) {
-            $('#donation-modal').modal('show')
-        };
-        
-        $("#donation-modal-button-reject").click(function() {
-            $.cookie('donation', 'r', { expires: 1, path: '/'});
-        });
 
-        $("#donation-modal-button-accept").click(function() {
-            $.cookie('donation', 'a', { expires: 30, path: '/'});
-        });
+    <script>
+                        
+        $(document).ready(function() {
+
+            if (!$.cookie('donation')) {
+                $('#donation-modal').modal('show')
+            };
         
+            $("#donation-modal-button-reject").click(function() {
+                $.cookie('donation', 'r', { expires: 1, path: '/'});
+            });
+
+            $("#donation-modal-button-accept").click(function() {
+                $.cookie('donation', 'a', { expires: 30, path: '/'});
+            });
+
+        });
+               
     </script>
     
 </body>

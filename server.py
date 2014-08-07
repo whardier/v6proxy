@@ -59,8 +59,8 @@ define('page_copyright', type=str, default='2014 Brute Technologies', group='Glo
 ## ┗━┛╹ ╹┗━┛┗━╸╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
 
 class BaseHandler(tornado.web.RequestHandler):
-    def initialize(self, **kwargs):
-        super(BaseHandler, self).initialize(**kwargs)
+    def initialize(self, *args, **kwargs):
+        super(BaseHandler, self).initialize(*args, **kwargs)
 
         self.kwargs = kwargs
 
@@ -124,7 +124,7 @@ class StubHandler(BaseHandler):
 
 class HomePageHandler(BaseHandler):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         self.render('home.html.tpl', page_title=_('Home'))
 
 ## ╺┳┓┏━┓┏┓╻┏━┓╺┳╸╻┏━┓┏┓╻┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -133,7 +133,7 @@ class HomePageHandler(BaseHandler):
 
 class DonationPageHandler(BaseHandler):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         self.render('donation.html.tpl', page_title=_('Donation'))
 
 ## ┏━╸┏━┓┏━┓┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -142,7 +142,7 @@ class DonationPageHandler(BaseHandler):
 
 class FAQPageHandler(BaseHandler):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         self.render('faq.html.tpl', page_title=_('F.A.Q.'))
 
 ## ┏━┓╺┳╸┏━┓╺┳╸╻ ╻┏━┓┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -151,7 +151,7 @@ class FAQPageHandler(BaseHandler):
 
 class StatusPageHandler(BaseHandler):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         self.render('status.html.tpl', page_title=_('Status'))
 
 ## ╻┏━┓╻ ╻┏━┓┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -160,7 +160,7 @@ class StatusPageHandler(BaseHandler):
 
 class IPv6PageHandler(BaseHandler):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         self.render('ipv6.html.tpl', page_title=_('IPv6'))
 
 ## ┏━┓┏━┓╻  ┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -169,7 +169,7 @@ class IPv6PageHandler(BaseHandler):
 
 class SSLPageHandler(BaseHandler):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         self.render('ssl.html.tpl', page_title=_('SSL'))
 
 ## ┏━┓╻ ╻┏┓ ╺┳┓┏━┓┏┳┓┏━┓╻┏┓╻┏━┓┏━╸┏━╸╻┏━┓╺┳╸┏━┓┏━┓╺┳╸╻┏━┓┏┓╻╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -178,7 +178,14 @@ class SSLPageHandler(BaseHandler):
 
 class SubdomainRegistrationHandler(BaseHandler):
 
-    def post(self, **kwargs):
+    def post(self, *args, **kwargs):
+        pprint.pprint(self.request.arguments)
+        self.redirect(self.reverse_url('subdomain/registration/status', 'stuff'))
+
+
+class SubdomainRegistrationStatusHandler(BaseHandler):
+
+    def get(self, *args, **kwargs):
         self.write('')
 
 ## ┏━┓╻ ╻┏┓ ╺┳┓┏━┓┏┳┓┏━┓╻┏┓╻┏━┓┏━╸╺┳╸╻╻ ╻┏━┓╺┳╸╻┏━┓┏┓╻╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
@@ -190,7 +197,7 @@ class SubdomainActivationHandler(BaseHandler):
     def check_xsrf_cookie(self, *args, **kwargs):
         pass
 
-    def post(self, **kwargs):
+    def post(self, *args, **kwargs):
         import pprint
         pprint.pprint(self.request.arguments)
 
@@ -235,6 +242,7 @@ def main():
         tornado.web.url(r'/donation', DonationPageHandler, name='donation'),
         ## Subdomain Registration (form)
         tornado.web.url(r'/subdomain/registration', SubdomainRegistrationHandler, name='subdomain/registration'),
+        tornado.web.url(r'/subdomain/registration/status/(.*)', SubdomainRegistrationStatusHandler, name='subdomain/registration/status'),
         ## Subdomain Activation (encoded URL)
         tornado.web.url(r'/subdomain/activation', SubdomainActivationHandler, name='subdomain/activation'),
         ## Home
