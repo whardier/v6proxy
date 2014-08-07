@@ -136,25 +136,65 @@ class DonationPageHandler(BaseHandler):
     def get(self, **kwargs):
         self.render('donation.html.tpl', page_title=_('Donation'))
 
+## ┏━╸┏━┓┏━┓┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
+## ┣╸ ┣━┫┃┓┃┣━┛┣━┫┃╺┓┣╸ ┣━┫┣━┫┃┗┫ ┃┃┃  ┣╸ ┣┳┛
+## ╹  ╹ ╹┗┻┛╹  ╹ ╹┗━┛┗━╸╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
+
 class FAQPageHandler(BaseHandler):
 
     def get(self, **kwargs):
         self.render('faq.html.tpl', page_title=_('F.A.Q.'))
+
+## ┏━┓╺┳╸┏━┓╺┳╸╻ ╻┏━┓┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
+## ┗━┓ ┃ ┣━┫ ┃ ┃ ┃┗━┓┣━┛┣━┫┃╺┓┣╸ ┣━┫┣━┫┃┗┫ ┃┃┃  ┣╸ ┣┳┛
+## ┗━┛ ╹ ╹ ╹ ╹ ┗━┛┗━┛╹  ╹ ╹┗━┛┗━╸╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
 
 class StatusPageHandler(BaseHandler):
 
     def get(self, **kwargs):
         self.render('status.html.tpl', page_title=_('Status'))
 
+## ╻┏━┓╻ ╻┏━┓┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
+## ┃┣━┛┃┏┛┣━┓┣━┛┣━┫┃╺┓┣╸ ┣━┫┣━┫┃┗┫ ┃┃┃  ┣╸ ┣┳┛
+## ╹╹  ┗┛ ┗━┛╹  ╹ ╹┗━┛┗━╸╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
+
 class IPv6PageHandler(BaseHandler):
 
     def get(self, **kwargs):
         self.render('ipv6.html.tpl', page_title=_('IPv6'))
 
+## ┏━┓┏━┓╻  ┏━┓┏━┓┏━╸┏━╸╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
+## ┗━┓┗━┓┃  ┣━┛┣━┫┃╺┓┣╸ ┣━┫┣━┫┃┗┫ ┃┃┃  ┣╸ ┣┳┛
+## ┗━┛┗━┛┗━╸╹  ╹ ╹┗━┛┗━╸╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
+
 class SSLPageHandler(BaseHandler):
 
     def get(self, **kwargs):
         self.render('ssl.html.tpl', page_title=_('SSL'))
+
+## ┏━┓╻ ╻┏┓ ╺┳┓┏━┓┏┳┓┏━┓╻┏┓╻┏━┓┏━╸┏━╸╻┏━┓╺┳╸┏━┓┏━┓╺┳╸╻┏━┓┏┓╻╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
+## ┗━┓┃ ┃┣┻┓ ┃┃┃ ┃┃┃┃┣━┫┃┃┗┫┣┳┛┣╸ ┃╺┓┃┗━┓ ┃ ┣┳┛┣━┫ ┃ ┃┃ ┃┃┗┫┣━┫┣━┫┃┗┫ ┃┃┃  ┣╸ ┣┳┛
+## ┗━┛┗━┛┗━┛╺┻┛┗━┛╹ ╹╹ ╹╹╹ ╹╹┗╸┗━╸┗━┛╹┗━┛ ╹ ╹┗╸╹ ╹ ╹ ╹┗━┛╹ ╹╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
+
+class SubdomainRegistrationHandler(BaseHandler):
+
+    def post(self, **kwargs):
+        self.write('')
+
+## ┏━┓╻ ╻┏┓ ╺┳┓┏━┓┏┳┓┏━┓╻┏┓╻┏━┓┏━╸╺┳╸╻╻ ╻┏━┓╺┳╸╻┏━┓┏┓╻╻ ╻┏━┓┏┓╻╺┳┓╻  ┏━╸┏━┓
+## ┗━┓┃ ┃┣┻┓ ┃┃┃ ┃┃┃┃┣━┫┃┃┗┫┣━┫┃   ┃ ┃┃┏┛┣━┫ ┃ ┃┃ ┃┃┗┫┣━┫┣━┫┃┗┫ ┃┃┃  ┣╸ ┣┳┛
+## ┗━┛┗━┛┗━┛╺┻┛┗━┛╹ ╹╹ ╹╹╹ ╹╹ ╹┗━╸ ╹ ╹┗┛ ╹ ╹ ╹ ╹┗━┛╹ ╹╹ ╹╹ ╹╹ ╹╺┻┛┗━╸┗━╸╹┗╸
+
+class SubdomainActivationHandler(BaseHandler):
+
+    def check_xsrf_cookie(self, *args, **kwargs):
+        pass
+
+    def post(self, **kwargs):
+        import pprint
+        pprint.pprint(self.request.arguments)
+
+        self.write('')
 
 ## ┏━┓┏━╸┏━┓╻ ╻┏━╸┏━┓
 ## ┗━┓┣╸ ┣┳┛┃┏┛┣╸ ┣┳┛
@@ -193,6 +233,10 @@ def main():
         tornado.web.url(r'/ssl', SSLPageHandler, name='ssl'),
         ## Donation
         tornado.web.url(r'/donation', DonationPageHandler, name='donation'),
+        ## Subdomain Registration (form)
+        tornado.web.url(r'/subdomain/registration', SubdomainRegistrationHandler, name='subdomain/registration'),
+        ## Subdomain Activation (encoded URL)
+        tornado.web.url(r'/subdomain/activation', SubdomainActivationHandler, name='subdomain/activation'),
         ## Home
         tornado.web.url(r'/', HomePageHandler, name='home'),
     ]
