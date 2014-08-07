@@ -4,6 +4,11 @@ listen_port=8080
 debug=True
 logging='debug'
 
-#Generate something else!
-cookie_secret="cd6e2f563c86ea353623765b3f4aad372fb72da5148d39fde83f6d3fb1f218b1"
+mandrill_api_key="xxxxxxxxxxxxxxxxxxxxxx"
+                
+cloudflare_api_key="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                      
+registration_secret='xxxxxxxxxxxxxxxx'
 
+#Generate something else!
+cookie_secret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"

@@ -6,17 +6,8 @@ upstream upstream_v6proxy_tornado {
 server {
 
     listen [::]80;
-    #listen [2610:100:4fff:8067::3]:443 ssl spdy;
 
     server_name         v6proxy.com;
-
-    #ssl on;
-
-    #ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
-    #ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
-    #ssl_session_cache   shared:SSL:10m;
-
-    #spdy_headers_comp   9;
 
     access_log          /var/log/nginx/v6proxy-access.log;
     error_log           /var/log/nginx/v6proxy-error.log;
