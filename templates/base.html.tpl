@@ -86,7 +86,6 @@
                                         <label for="domain">Domain</label>
                                         <select class="form-control" name="domain" id="domain">
                                             <option selected>v6proxy.com</option>
-                                            <option>proxyipv6.com</option>
                                         </select>
                                     </div>
                                     <div class="checkbox">
@@ -272,9 +271,9 @@
                         
         $(document).ready(function() {
 
-            if (!$.cookie('donation')) {
-                $('#donation-modal').modal('show')
-            };
+            //if (!$.cookie('donation')) {
+            //    $('#donation-modal').modal('show')
+            //};
         
             $("#donation-modal-button-reject").click(function() {
                 $.cookie('donation', 'r', { expires: 1, path: '/'});
