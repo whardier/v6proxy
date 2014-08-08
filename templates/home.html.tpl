@@ -27,7 +27,14 @@
         <p>
             <a class="btn btn-lg btn-primary" href="#" role="button"><i class="fa fa-book"></i> Read more</a>
             or
-            <a class="btn btn-lg btn-success" href="#" role="button"><i class="fa fa-pencil-square-o"></i> Register a subdomain</a>
+            <a class="btn btn-lg btn-success" href="#" role="button" data-toggle="modal" data-target="#registration-modal"><i class="fa fa-pencil-square-o"></i> Register a subdomain</a>
+        </p>
+        <hr/>
+        <p>
+        <h2>Similar Tools</h2>
+        <ul class="list-unstyled">
+            <li><a href="https://ngrok.com/">ngrok - Introspected tunnels to localhost</a></li>
+        </ul>
         </p>
     </div>
 </div>

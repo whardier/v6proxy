@@ -46,7 +46,7 @@ ACTIVATION_INVALIDATION_TIMEOUT = 86400 * 60 #60 days
 def config_callback(config_path):
     options.parse_config_file(path.path(config_path).expand().abspath(), final=False)
 
-define("config", type=str, help="Path to config file", callback=config_callback, group='Config file')
+define('config', type=str, help='Path to config file', callback=config_callback, group='Config file')
 
 define('debug', default=False, help='Debug', type=bool, group='Application')
 define('scrypt_max_time', default=0.5, help='scrypt encode/decode max time', type=float, group='Application')
@@ -116,63 +116,154 @@ class BaseHandler(tornado.web.RequestHandler):
         return namespace
 
     @tornado.gen.coroutine
-    def find_latest_request_content(self, subdomain, domain):
+    def cloudflare_rec_load_all(self, domain, offset):
         http_client = tornado.httpclient.AsyncHTTPClient()
 
-        records_offset = 0
+        response = yield http_client.fetch('https://www.cloudflare.com/api_json.html',
+            method='POST',
+            body=urllib.parse.urlencode(
+                {
+                    'a': 'rec_load_all',
+                    'tkn': self.settings['cloudflare_api_key'],
+                    'email': self.settings['cloudflare_api_email'],
+                    'z': domain,
+                    'o': offset,
+                }
+            )
+        )
+
+        rec_load_all_response_content = json.loads(response.body.decode('utf-8'))
+
+        if rec_load_all_response_content.get('result') == 'success':
+            return rec_load_all_response_content['response']['recs']['objs'], rec_load_all_response_content['response']['recs']['has_more'], offset + rec_load_all_response_content['response']['recs']['count']
+
+    @tornado.gen.coroutine
+    def cloudflare_rec_new(self, record_type, content, subdomain, domain):
+        http_client = tornado.httpclient.AsyncHTTPClient()
+
+        response = yield http_client.fetch('https://www.cloudflare.com/api_json.html',
+            method='POST',
+            body=urllib.parse.urlencode(
+                {
+                    'a': 'rec_new',
+                    'tkn': self.settings['cloudflare_api_key'],
+                    'email': self.settings['cloudflare_api_email'],
+                    'z': domain,
+                    'name': subdomain,
+                    'ttl': 1,
+                    'type': record_type,
+                    'content': content,
+                }
+            )
+        )
+
+        return json.loads(response.body.decode('utf-8'))
+
+    @tornado.gen.coroutine
+    def cloudflare_rec_delete(self, domain, id):
+        http_client = tornado.httpclient.AsyncHTTPClient()
+
+        response = yield http_client.fetch('https://www.cloudflare.com/api_json.html',
+            method='POST',
+            body=urllib.parse.urlencode(
+                {
+                    'a': 'rec_delete',
+                    'tkn': self.settings['cloudflare_api_key'],
+                    'email': self.settings['cloudflare_api_email'],
+                    'z': domain,
+                    'id': id,
+                }
+            )
+        )
+
+        return json.loads(response.body.decode('utf-8'))
+
+    @tornado.gen.coroutine
+    def cloudflare_rec_edit_enable_proxy(self, record_type, content, subdomain, domain, id):
+        http_client = tornado.httpclient.AsyncHTTPClient()
+
+        response = yield http_client.fetch('https://www.cloudflare.com/api_json.html',
+            method='POST',
+            body=urllib.parse.urlencode(
+                {
+                    'a': 'rec_edit',
+                    'tkn': self.settings['cloudflare_api_key'],
+                    'email': self.settings['cloudflare_api_email'],
+                    'z': domain,
+                    'name': subdomain,
+                    'ttl': 1,
+                    'type': record_type,
+                    'content': content,
+                    'service_mode': 1,
+                    'id': id,
+                }
+            )
+        )
+
+        return json.loads(response.body.decode('utf-8'))
+
+    @tornado.gen.coroutine
+    def add_txt_record_from_request_content(self, request_content):
+
+        rec_load_all_offset = 0
+        rec_load_all_has_more = True
+
+        subdomain = request_content['subdomain']
+        domain = request_content['domain']
+
+        response = yield self.cloudflare_rec_new('TXT', json.dumps(request_content, sort_keys=True), subdomain, domain)
+
+        return response
+
+    @tornado.gen.coroutine
+    def add_aaaa_record_from_request_content(self, request_content, start='', end='', proxy=False):
+
+        rec_load_all_offset = 0
+        rec_load_all_has_more = True
+
+        address = request_content['address']
+        subdomain = start + request_content['subdomain'] + end
+        domain = request_content['domain']
+
+        while rec_load_all_has_more:
+            (records, rec_load_all_has_more, rec_load_all_offset) = yield self.cloudflare_rec_load_all(domain, rec_load_all_offset)
+
+            for record in records:
+
+                if record['type'] == 'AAAA' and record['name'] == subdomain + '.' + domain:
+                    response = yield self.cloudflare_rec_delete(domain, record['rec_id'])
+
+        response = yield self.cloudflare_rec_new('AAAA', address, subdomain, domain)
+
+        id = response['response']['rec']['obj']['rec_id']
+
+        if proxy:
+            edit_response = yield self.cloudflare_rec_edit_enable_proxy('AAAA', address, subdomain, domain, id)
+
+        return response
+
+    @tornado.gen.coroutine
+    def find_latest_subdomain_request_content(self, subdomain, domain):
+        http_client = tornado.httpclient.AsyncHTTPClient()
+
         latest_request_content = None
 
-        while True:
-            response = yield http_client.fetch("https://www.cloudflare.com/api_json.html",
-                method='POST',
-                body=urllib.parse.urlencode(
-                    {
-                        'a': 'rec_load_all',
-                        'tkn': self.settings['cloudflare_api_key'],
-                        'email': self.settings['cloudflare_api_email'],
-                        'z': domain,
-                        'o': records_offset,
-                    }
-                )
-            )
+        rec_load_all_offset = 0
+        rec_load_all_has_more = True
 
-            try:
-                rec_load_all_response_content = json.loads(response.body.decode('utf-8'))
-            except:
-                print('there was an error')
-                self.write('')
-                return
+        while rec_load_all_has_more:
+            (records, rec_load_all_has_more, rec_load_all_offset) = yield self.cloudflare_rec_load_all(domain, rec_load_all_offset)
 
+            for record in records:
 
-            if rec_load_all_response_content.get('result') == 'success':
-                for record in rec_load_all_response_content['response']['recs']['objs']:
+                if record['type'] == 'TXT' and record['name'] == subdomain + '.' + domain:
+                    request_content_json = record['content']
+                    request_content = json.loads(request_content_json)
 
-                    if record['type'] == 'TXT' and record['name'] == subdomain + '.' + domain:
-                        request_content_json = record['content']
-
-                        try:
-                            request_content = json.loads(request_content_json)
-                        except:
-                            ## Handle a case where the TXT content is not JSON
-                            print('crap', request_content_json)
-                            self.write('')
-                            return
-
-                        if not latest_request_content:
-                            latest_request_content = request_content
-                        else:
-                            if request_content['ts'] > latest_request_content['ts'] + TXT_INVALIDATION_TIMEOUT:
-                                latest_request_content = request_content
-            else:
-                print('there was an error')
-                self.write('')
-                return
-
-            #Break is 'has_more' is null or false
-            if not rec_load_all_response_content['response']['recs'].get('has_more'):
-                break
-
-        records_offset += rec_load_all_response_content['response']['recs']['count']
+                    if not latest_request_content:
+                        latest_request_content = request_content
+                    elif request_content['ts'] > latest_request_content['ts'] + TXT_INVALIDATION_TIMEOUT:
+                        latest_request_content = request_content
 
         return latest_request_content
 
@@ -282,10 +373,7 @@ class SubdomainRegistrationHandler(BaseHandler):
         request_content = payload['content']
         ts = payload['ts']
 
-        latest_request_content = yield self.find_latest_request_content(request_content['subdomain'], request_content['domain'])
-
-        print(request_content)
-        print(latest_request_content)
+        latest_request_content = yield self.find_latest_subdomain_request_content(request_content['subdomain'], request_content['domain'])
 
         if not latest_request_content or request_content['ts'] > latest_request_content['ts'] + TXT_INVALIDATION_TIMEOUT:
             #well.. we're the first or the dead last.  Lets do an encrypted request token
@@ -300,14 +388,41 @@ class SubdomainRegistrationHandler(BaseHandler):
             encrypted_payload = self._encrypt(payload_json)
 
             #oversimplified for now.  Could lead to issues later on
-            activation_url = self.request.protocol + "://" + self.request.host + self.reverse_url('subdomain/activation/encrypted_payload', encrypted_payload)
+            activation_url = self.request.protocol + '://' + self.request.host + self.reverse_url('subdomain/activation/encrypted_payload', encrypted_payload)
 
-            self.write(activation_url)
+            http_client = tornado.httpclient.AsyncHTTPClient()
 
-            print(activation_url)
-            return
+            response = yield http_client.fetch('https://mandrillapp.com/api/1.0/messages/send.json',
+                method='POST',
+                body=json.dumps(
+                    {
+                        'key': self.settings['mandrill_api_key'],
+                        'message': {
+                            'html': '<p>Here is your <a href="' + activation_url + '">activation link</a></p>',
+                            'text': 'Here is your activation link - ' + activation_url,
+                            'subject': 'Activation Link',
+                            'from_email': 'spencersr@v6proxy.com',
+                            'from_name': 'Shane R. Spencer (v6proxy)',
+                            'to': [
+                                {
+                                    'email': request_content['email'],
+                                    'type': 'to'
+                                }
+                            ],
+                            'subaccount': 'v6proxy',
+                        },
+                        'async': False,
+                    }
+                )
+            )
 
-        self.write('so there')
+            print(response.body)
+
+            status = 'email-sent'
+        else:
+            status = 'not-latest-or-in-time'
+
+        self.render('subdomain.registration.html.tpl', page_title=_('Registration Status'), status=status, latest_request_content=latest_request_content)
 
     def post(self, *args, **kwargs):
 
@@ -320,6 +435,7 @@ class SubdomainRegistrationHandler(BaseHandler):
                     'address': self.get_argument('address'),
                     'subdomain': self.get_argument('subdomain'),
                     'domain': self.get_argument('domain'),
+                    'direct': self.get_argument('direct', 'off'),
                     'wildcard': self.get_argument('wildcard', 'off'),
                 },
             }, sort_keys=True ### SORTING IS VERT IMPORTANT
@@ -341,17 +457,24 @@ class SubdomainActivationHandler(BaseHandler):
         request_content = payload['content']
         ts = payload['ts']
 
-        latest_request_content = yield self.find_latest_request_content(request_content['subdomain'], request_content['domain'])
-
-        print(latest_request_content)
+        latest_request_content = yield self.find_latest_subdomain_request_content(request_content['subdomain'], request_content['domain'])
 
         if not latest_request_content or request_content['ts'] > latest_request_content['ts'] + TXT_INVALIDATION_TIMEOUT:
-            #well.. we're the first or the dead last.  Lets do an encrypted request token
+            #well.. we're the first or the dead last still!.. Lets give it a go and hope there are no races!
 
-            self.write('hmmm')
-            return
+            yield self.add_txt_record_from_request_content(request_content)
+            yield self.add_aaaa_record_from_request_content(request_content, proxy=True)
+            if request_content['direct'] == 'on':
+                yield self.add_aaaa_record_from_request_content(request_content, end='.direct')
+            if request_content['wildcard'] == 'on':
+                yield self.add_aaaa_record_from_request_content(request_content, start='*.', end='.wildcard')
 
-        self.write('so there')
+            status = 'ok'
+        else:
+            status = 'error'
+
+        self.render('subdomain.activation.html.tpl', page_title=_('Registration Activation'), status=status, latest_request_content=latest_request_content)
+
 
 ## ┏━┓┏━╸┏━┓╻ ╻┏━╸┏━┓
 ## ┗━┓┣╸ ┣┳┛┃┏┛┣╸ ┣┳┛

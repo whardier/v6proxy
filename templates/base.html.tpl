@@ -21,7 +21,7 @@
         <!-- Bootstrap core CSS -->
         <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
         <link href="//cdnjs.cloudflare.com/ajax/libs/bootswatch/3.2.0+1/united/bootstrap.min.css" rel="stylesheet"/>
-
+        
         <!-- FontAwesome Icons -->
         <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet"/>
         
@@ -91,7 +91,12 @@
                                     </div>
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox" id="wildcard" name="wildcard"/> Set up unproxied *.(subdomain).wildcard.(domain.com) DNS pointer
+                                            <input type="checkbox" id="direct" name="direct" checked/> Direct AAAA record for <i>subdomain</i>.<b>direct</b>.<i>domain.com</i>
+                                        </label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="wildcard" name="wildcard" checked/> Direct AAAA <b>wildcard</b> record for <b>*</b>.<i>subdomain</i>.<b>wildcard</b>.<i>domain.com</i>
                                         </label>
                                     </div>
                                 </div>
@@ -219,7 +224,9 @@
                             <a href="{{ reverse_url('ssl') }}">SSL Setup</a>
                         </p>
                         <p>
-                            <a>Register a subdomain</a>
+                            <a href="#" data-toggle="modal" data-target="#registration-modal">
+                                Register a subdomain
+                            </a>
                         </p>
                     </div>
                     <div class="col-lg-3">
@@ -228,6 +235,14 @@
 
                         <h4>Sharing is caring</h4>
                         <p>You don't have to be the only cool kid on the block with this service working for them</p>
+
+                        <iframe src="//ghbtns.com/github-btn.html?user=whardier&repo=v6proxy&type=watch&count=true&size=large" allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30"></iframe>
+
+                        <iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fv6proxy.com%2F&amp;width=170&amp;layout=button_count&amp;action=like&amp;show_faces=true&amp;share=true&amp;height=21&amp;appId=316795618495567" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:170px; height:21px;" allowTransparency="true"></iframe>
+
+                        <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://v6proxy.com/" data-text="Free IPv4/IPv6 to IPv6 Proxy - What's not to love?" data-via="whardier" data-size="large" data-related="whardier" data-hashtags="v6proxy">Tweet</a>
+                        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
                     </div>
                 </div>
             </div>
