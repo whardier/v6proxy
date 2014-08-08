@@ -7,7 +7,7 @@ server {
 
     listen [::]80;
 
-    server_name         v6proxy.com;
+    server_name         v6proxy.com www.v6proxy.com;
 
     access_log          /var/log/nginx/v6proxy-access.log;
     error_log           /var/log/nginx/v6proxy-error.log;

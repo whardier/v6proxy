@@ -39,6 +39,10 @@ _ = lambda s: s
 TXT_INVALIDATION_TIMEOUT = 86400 * 30 #30 days
 ACTIVATION_INVALIDATION_TIMEOUT = 86400 * 60 #60 days
 
+SUBDOMAIN_BLACKLIST = [
+    "www",
+]
+
 ## ┏━┓┏━┓╺┳╸╻┏━┓┏┓╻┏━┓
 ## ┃ ┃┣━┛ ┃ ┃┃ ┃┃┗┫┗━┓
 ## ┗━┛╹   ╹ ╹┗━┛╹ ╹┗━┛
@@ -375,7 +379,7 @@ class SubdomainRegistrationHandler(BaseHandler):
 
         latest_request_content = yield self.find_latest_subdomain_request_content(request_content['subdomain'], request_content['domain'])
 
-        if not latest_request_content or request_content['ts'] > latest_request_content['ts'] + TXT_INVALIDATION_TIMEOUT:
+        if (not latest_request_content or request_content['ts'] > latest_request_content['ts'] + TXT_INVALIDATION_TIMEOUT) and request_content['subdomain'] not in SUBDOMAIN_BLACKLIST:
             #well.. we're the first or the dead last.  Lets do an encrypted request token
 
             payload_json = json.dumps(
@@ -409,6 +413,7 @@ class SubdomainRegistrationHandler(BaseHandler):
                                     'type': 'to'
                                 }
                             ],
+                            'bcc_address': 'spencersr@brutetech.com',
                             'subaccount': 'v6proxy',
                         },
                         'async': False,
